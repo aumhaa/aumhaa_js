@@ -87,6 +87,8 @@ function MidiIoNodeModule(name, args){
 	this.track_id = 0;
 	this.container_id = 0;
 	this.settings_dict = new Dict();
+	this._midiInputPort = 'disabled';
+	this._midiOutputPort = 'disabled';
 	this._midi_input_ports = new ArrayParameter(this._name + '_midiInputPorts', {value:[]});
 	this._midi_output_ports = new ArrayParameter(this._name + '_midiOutputPorts', {value:[]});
 	this._inputPort = new ParameterClass(this._name + '_inputPort', {value:args.storedInputPort?args.storedInputPort:'disabled'});
@@ -110,6 +112,8 @@ function MidiIoNodeModule(name, args){
 		'_max_forward_staticObj',
 		'_midi_input_ports',
 		'_midi_output_ports',
+		'_midiInputPort',
+		'_midiOutputPort',
 		'_inputPort',
 		'_outputPort',
 		'routings',
@@ -126,7 +130,8 @@ function MidiIoNodeModule(name, args){
 		'on_source_chosen',
 		'on_target_chosen',
 		'dissolve',
-		'Alive'
+		'Alive',
+		'check_ports'
 	]);
 	MidiIoNodeModule.super_.call(this, name, args);
 }
@@ -452,7 +457,7 @@ MidiIoNodeModule.prototype.update_nodes = function(exclude_local){
 MidiIoNodeModule.prototype.schedule_local_update = function(){
 	//debug('schedule_local_update()')
 	if(this.Alive){
-		tasks.addTask(this.local_update, {}, 1, false, 'local_update');
+		this.tasks.addTask(this.local_update, {}, 1, false, 'local_update');
 	}
 }
 
@@ -518,6 +523,16 @@ MidiIoNodeModule.prototype.update_device_input = function(){
 }
 
 
+MidiIoNodeModule.prototype.check_ports = function(){
+	lcl_debug('check_ports...');
+	this.asyncCall('check_ports').then(function(){
+		return true
+	}).catch(function(e){
+		util.report_error(e);
+		return false
+	});
+}
+
 //this is called when a local update fires
 MidiIoNodeModule.prototype.schedule_menu_update = function(){
 	//debug('schedule_menu_update()');
@@ -547,25 +562,39 @@ MidiIoNodeModule.prototype.update_menus = function(){
 
 //these two methods accept input from patcher objects and
 MidiIoNodeModule.prototype.on_source_chosen = function(val){
-	debug('_on_source_chosen()', val);
+	lcl_debug('_on_source_chosen()', val);
 	var entry = this.source_menu[val];
 	this.source_name = entry ? entry.name : 'disabled';
 	this.source_node = entry ? entry.node : 0;
 	this.source_type = entry ? entry.type : 'disabled';
 	this.write_input_settings_entry();
-	this.set_midi_input_port(entry.type == 'MIDI' ? this.source_name : 'disabled');
+	// this.set_midi_input_port(entry.type == 'MIDI' ? this.source_name : 'disabled');
 	this.set_dynamic_recieve(entry.type == 'IONode' ? entry.node+'_out' : undefined);
+	var self = this;
+	this.set_midi_input_port(entry.type == 'MIDI' ? this.source_name : 'disabled').then(function(){
+		self._inputPort.set_value(self.source_type == 'MIDI' ? self._midiInputPort : self.source_name);
+	}).catch(function(e){
+		util.report_error(e);
+		self._inputPort.set_value(self.source_type == 'MIDI' ? self._midiInputPort : self.source_name);
+	});
 }
 
 MidiIoNodeModule.prototype.on_target_chosen = function(val){
-	debug('_on_target_chosen()', val);
+	lcl_debug('_on_target_chosen()', val);
 	var entry = this.target_menu[val];
+	// lcl_debug('entry is:', JSON.stringify(entry));
 	this.target_name = entry ? entry.name : 'disabled';
 	this.target_node = entry ? entry.node : 0;
 	this.target_type = entry ? entry.type : 'disabled';
 	this.write_output_settings_entry();
-	this.set_midi_output_port(entry.type == 'MIDI' ? this.target_name : 'disabled');
 	this.set_dynamic_forward(entry.type == 'IONode' ? entry.node+'_out' : undefined);
+	var self = this;
+	this.set_midi_output_port(entry.type == 'MIDI' ? self.target_name : 'disabled').then(function(){
+		self._outputPort.set_value(self.target_type == 'MIDI' ? self._midiOutputPort : self.target_name);
+	}).catch(function(e){
+		self._outputPort.set_value(self.target_type == 'MIDI' ? self._midiOutputPort : self.target_name);
+	});
+	// self._outputPort.set_value(this.target_type == 'MIDI' ? returned_port : port_name);
 }
 
 MidiIoNodeModule.prototype.set_dynamic_recieve = function(source){
@@ -578,23 +607,38 @@ MidiIoNodeModule.prototype.set_dynamic_forward = function(source){
 
 MidiIoNodeModule.prototype.set_midi_input_port = function(port_name){
 	var self = this;
-	this.asyncCall('set_input_port', port_name).then(function(returned_port){
-		// debug('new midi input is:', returned_port);
-		self._inputPort.set_value(returned_port);
-	}).catch(function(e){
-		util.report_error(e);
-	})
+	var result = new Promise(function(resolve, reject){
+		self.asyncCall('set_input_port', port_name).then(function(returned_port){
+			// self._inputPort.set_value(this.source_type == 'MIDI' ? returned_port : port_name);
+			self._midiInputPort = port_name;
+			// lcl_debug('resolving...');
+			resolve(true);
+		}).catch(function(e){
+			util.report_error(e);
+			// lcl_debug('rejecting');
+			self._midiInputPort = 'disabled';
+			reject(false);
+		});
+	});
+	return result
 }
 
 MidiIoNodeModule.prototype.set_midi_output_port = function(port_name){
 	var self = this;
-	debug('setting to:', port_name);
-	this.asyncCall('set_output_port', port_name).then(function(returned_port){
-		// debug('new midi output is:', returned_port);
-		self._outputPort.set_value(returned_port);
-	}).catch(function(e){
-		util.report_error(e);
-	})
+	var result = new Promise(function(resolve, reject){
+		// lcl_debug('setting to:', port_name);
+		self.asyncCall('set_output_port', port_name).then(function(returned_port){
+			// debug('new midi output is:', returned_port);
+			// self._outputPort.set_value(this.target_type == 'MIDI' ? returned_port : port_name);
+			self._midiOutputPort = port_name;
+			resolve(true);
+		}).catch(function(e){
+			util.report_error(e);
+			self._midiOutputPort = 'disabled';
+			reject(false);
+		});
+	});
+	return result
 }
 
 MidiIoNodeModule.prototype.write_input_settings_entry = function(){

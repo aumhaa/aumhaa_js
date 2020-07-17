@@ -11,6 +11,25 @@ function APIUtility(){
 	this.finder = new LiveAPI(function(){}, 'this_device');
 	this.device_id = parseInt(this.finder.id);
 	this.container_id = parseInt(this.container_from_id(this.device_id));
+	this.id_list = [];
+}
+
+APIUtility.prototype.is_valid = function(id){
+	//catch doesn't work when liveAPI throws for some reason, but finally does.
+	//we're posting to suppress the red jsliveapi warning in the max log....because its irritating.
+	//do yourself a favor and don't adjust this, it seems to be working.
+	id = parseInt(id);
+	if(id!=0){
+		try{
+			post('is_valid: '+id);
+			this.finder.id = id;
+			post(this.finder.id == id ? 'true' : 'false');
+		}catch(e){}finally{
+			post('\n');
+			return (this.finder.id == id)
+		}
+	}
+	return false
 }
 
 APIUtility.prototype.track_from_id = function(id){
@@ -239,5 +258,20 @@ APIUtility.prototype.device_ids_from_parent = function(id){
 	return ids;
 }
 
+APIUtility.prototype.find_control_surface = function(control_surface_type){
+	this.finder.goto('control_surfaces');
+	var number_children = parseInt(this.finder.children[0]);
+	lcl_debug('control_surfaces length:', number_children);
+	for(var i=0;i<number_children;i++)
+	{
+		lcl_debug('Checking control surface #:', i);
+		this.finder.goto('control_surfaces', i);
+		if(this.finder.type == control_surface_type)
+		{
+			return parseInt(this.finder.id);
+		}
+	}
+	return 0
+}
 
 exports.APIUtility = APIUtility;

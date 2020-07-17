@@ -27,6 +27,7 @@ var util = require('aumhaa_util');
 util.inject(this, util);
 
 var Bindable = require('aumhaa_bindable').Bindable;
+var EventEmitter = require('aumhaa_event_emitter').EventEmitter;
 var ArrayParameter = require('aumhaa_parameters').ArrayParameter;
 var Promise = require('aumhaa_promise').Promise;
 var AumhaaGlobalProxy = require('aumhaa_global_proxy').AumhaaGlobalProxy;
@@ -134,7 +135,7 @@ function NodeScriptProxy(name, args){
 	}
 }
 
-util.inherits(NodeScriptProxy, Bindable);
+util.inherits(NodeScriptProxy, EventEmitter);
 
 NodeScriptProxy.prototype.__defineGetter__('is_running', function(){
 	return this._obj.getattr('running');
