@@ -546,6 +546,35 @@ function isArray(value) {
 
 exports.isArray = isArray;
 
+function clamp(i, min, max){
+	return Math.max(Math.min(i, max), min)
+}
+
+exports.clamp = clamp;
+
+function arraysEqual(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length !== b.length) return false;
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+exports.arraysEqual = arraysEqual;
+
+var arrayIndexOf = function(array, item){
+	for(var i=0;i<array.length;i++){
+		if(arraysEqual(item, array[i])){
+			return i;
+		}
+	}
+	return -1;
+}
+
+exports.arrayIndexOf = arrayIndexOf;
+
 function autobind(self) {
 	var keys = Object.getOwnPropertyNames(self.constructor.prototype);
 	// Debug(self._name, 'autobind, keys:', keys);
