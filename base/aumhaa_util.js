@@ -285,7 +285,8 @@ exports.DebugNamespace = DebugNamespace;
 //should only be turned on while editing
 //Setup in js by:
 //forceload = (FORCELOAD&&Forceload) ? Forceload : function(){};
-Forceload = function(script){
+
+function Forceload(script){
 	post('FORCELOAD!!!!!!!\n');
 	script.init(1);
 }
@@ -638,7 +639,8 @@ function eventify(self){
 
 exports.eventify = eventify;
 
-aumhaaSetup = function(script){
+
+function aumhaaSetup(script){
 	script['autowatch'] = 1;
 	Function.prototype.clone = function(){
 		var that = this;

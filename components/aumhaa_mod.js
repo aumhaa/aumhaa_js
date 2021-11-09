@@ -92,7 +92,11 @@ ModComponent.prototype.assign_api = function(finder){
 
 ModComponent.prototype.init = function(){
 	var found = false;
+	try{
 	this.debug('ModComponent.init()', VERSION);
+	}catch(e){
+		util.report_error(e);
+	}
 	//this.assign_attributes(this.attrs);
 	if((this.finder instanceof LiveAPI)&&(this.finder.id!=0)){
 		this.finder.goto('this_device');

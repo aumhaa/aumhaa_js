@@ -1,7 +1,7 @@
 var filenames = [
   'aumhaa_mod',
   'aumhaa_bindable',
-  'aumhaa_midi_io_mmodule',
+  'aumhaa_midi_io_module',
   'aumhaa_notifier_consts',
   'aumhaa_node_script_proxy',
   'aumhaa_event_emitter',
@@ -20,7 +20,15 @@ var filenames = [
   'aumhaa_notification_display',
   'aumhaa_promise',
   'aumhaa_scales',
-  'aumhaa_task_server'
+  'aumhaa_task_server',
+  'aumhaa_gui_button_class',
+  'aumhaa_gui_control',
+  'aumhaa_gui_element',
+  'aumhaa_midi_event_router',
+  'aumhaa_modes',
+  'aumhaa_notifier_class',
+  'aumhaa_parameters',
+  'aumhaa_preset_component'
 ]
 
 exports.filenames = filenames;
