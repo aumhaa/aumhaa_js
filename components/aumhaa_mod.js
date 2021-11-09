@@ -112,58 +112,58 @@ ModComponent.prototype.init = function(){
 			if(modHandleId!=0){
 					this.restart.cancel();
 					this.finder.id = modHandleId;
-						found = true;
-						var new_id = this.finder.get('monomodular');
+					found = true;
+					var new_id = this.finder.get('monomodular');
 					// this.debug('found, focusing on', new_id);
-						this.finder.id = parseInt(new_id[1]);
-						this.monomodular_id = parseInt(new_id[1]);
-						router = new LiveAPI(this.connected_callback.bind(this));
-						router.id = parseInt(new_id[1]);
-						router.property = 'connected';
-						var modclient_id = this.finder.call('add_mod', 'id', this.this_device_id);
-						this.debug('modclient id is:', modclient_id);
-						this.finder.id = parseInt(modclient_id[1])
-						this.debug('client id returned is: ', this.finder.id);
-						this.modClientID = parseInt(modclient_id[1]);
-						this.finder.property = 'value';
-						var children = this.finder.info.toString().split(new RegExp("\n"));
-						for(var item in children){
-							if(FUNCTION.test(children[item])){
-								// this.debug('adding function:', children[item].replace('function ', ''));
-								this.modFunctions.push(children[item].replace('function ', ''));
-							}
+					this.finder.id = parseInt(new_id[1]);
+					this.monomodular_id = parseInt(new_id[1]);
+					router = new LiveAPI(this.connected_callback.bind(this));
+					router.id = parseInt(new_id[1]);
+					router.property = 'connected';
+					var modclient_id = this.finder.call('add_mod', 'id', this.this_device_id);
+					this.debug('modclient id is:', modclient_id);
+					this.finder.id = parseInt(modclient_id[1])
+					this.debug('client id returned is: ', this.finder.id);
+					this.modClientID = parseInt(modclient_id[1]);
+					this.finder.property = 'value';
+					var children = this.finder.info.toString().split(new RegExp("\n"));
+					for(var item in children){
+						if(FUNCTION.test(children[item])){
+							// this.debug('adding function:', children[item].replace('function ', ''));
+							this.modFunctions.push(children[item].replace('function ', ''));
 						}
-						this.modAddresses = this.finder.call('addresses');
-						this.debug('addresses:', this.modAddresses);
-						for(var address in this.modAddresses){
-							// this.debug('address length', this.modAddresses[address].length);
-							// this.debug('making receive func:', this.modAddresses[address]);
-							this[this.modAddresses[address]] = this.make_receive_func(this.modAddresses[address]);
-						}
-						for(var func in this.modFunctions){
-							// this.debug('making func:', this.modFunctions[func]);
-							this[this.modFunctions[func]] = this.make_func(this.modFunctions[func]);
-						}
-						this.debug('setting legacy', this.legacy, Math.floor(this.legacy));
-						this.finder.call('set_legacy', Math.floor(this.legacy));
-						if(this._name){
-							this.finder.call('set_name', this._name);
-						}
-						if(this.parent.alive){
-							this.parent.alive(1);
-							//if(!this.parent.wiki){this.parent.wiki = this.wiki;}
-						}
-						if(this._init_callback){
-							this._init_callback(1);
-						}
-						this.send_stored_messages();
-				break;
+					}
+					this.modAddresses = this.finder.call('addresses');
+					this.debug('addresses:', this.modAddresses);
+					for(var address in this.modAddresses){
+						// this.debug('address length', this.modAddresses[address].length);
+						// this.debug('making receive func:', this.modAddresses[address]);
+						this[this.modAddresses[address]] = this.make_receive_func(this.modAddresses[address]);
+					}
+					for(var func in this.modFunctions){
+						// this.debug('making func:', this.modFunctions[func]);
+						this[this.modFunctions[func]] = this.make_func(this.modFunctions[func]);
+					}
+					this.debug('setting legacy', this.legacy, Math.floor(this.legacy));
+					this.finder.call('set_legacy', Math.floor(this.legacy));
+					if(this._name){
+						this.finder.call('set_name', this._name);
+					}
+					if(this.parent.alive){
+						this.parent.alive(1);
+						//if(!this.parent.wiki){this.parent.wiki = this.wiki;}
+					}
+					if(this._init_callback){
+						this._init_callback(1);
+					}
+					this.send_stored_messages();
+					break;
+				}
+			}
+			if(!found){
+				this.restart.schedule(10000);
 			}
 		}
-		if(!found){
-			this.restart.schedule(10000);
-		}
-	}
 }
 
 ModComponent.prototype.make_receive_func = function(address){
@@ -273,6 +273,7 @@ ModComponent.prototype.dissolve = function(){
 	this.finder.property = '';
 	this.finder.id = 0;
 	this.restart.cancel();
+	this.restart.freepeer();
 }
 
 exports.ModComponent = ModComponent;

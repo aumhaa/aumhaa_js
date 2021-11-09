@@ -117,7 +117,7 @@ ParameterClass.prototype.set_control = function(control){
 	if (isClass(control, 'NotifierClass')|| !control){
 		this.clear_controls();
 		this.add_control(control);
-		}
+	}
 }
 
 ParameterClass.prototype.add_control = function(control){
@@ -128,11 +128,11 @@ ParameterClass.prototype.add_control = function(control){
 			control.set_target(this._Callback);
 		}
 		if(this._control==undefined){
-		this._control = control;
+			this._control = control;
 		}
-			this.update_control();
-		}
+		this.update_control();
 	}
+}
 
 ParameterClass.prototype.remove_control = function(control){
 	lcl_debug(this._name, 'remove_control', control._name);
@@ -585,7 +585,7 @@ OffsetComponent.prototype.set_inc_button = function(incButton){
 	if (isClass(incButton, 'NotifierClass') || !incButton){
 		this.clear_inc_buttons();
 		this.add_inc_button(this._incButton);
-		}
+	}
 }
 
 OffsetComponent.prototype.set_dec_button = function(decButton){
@@ -603,10 +603,10 @@ OffsetComponent.prototype.add_inc_button = function(incButton){
 			incButton.set_target(this.incCallback);
 		}
 		if(this._incButton == undefined){
-		this._incButton = incButton;
+			this._incButton = incButton;
 		}
 	}
-		}
+}
 
 OffsetComponent.prototype.add_dec_button = function(decButton){
 	if (isClass(decButton, 'NotifierClass')){
@@ -616,7 +616,7 @@ OffsetComponent.prototype.add_dec_button = function(decButton){
 			decButton.set_target(this.decCallback);
 		}
 		if(this._decButton == undefined){
-		this._decButton = decButton;
+			this._decButton = decButton;
 		}
 	}
 }
@@ -767,7 +767,7 @@ RadioComponent.prototype.set_controls = function(controls){
 	// controls = toControlArray(controls);
 	this.clear_controls();
 	this.add_controls(controls);
-	}
+}
 
 RadioComponent.prototype.add_controls = function(controls){
 	// controls = (controls instanceof Array) ? controls : isClass(controls, 'GridClass') ? controls.controls() : undefined;
@@ -780,14 +780,14 @@ RadioComponent.prototype.add_controls = function(controls){
 			for(var i in controls){
 				if(controls[i]&&isClass(controls[i], 'NotifierClass')){
 					controls[i].set_target(this._Callback);
+				}
 			}
 		}
-	}
 		if(this._buttons==[]){
 			this._buttons = controls;
 		}
-	this.update_controls();
-}
+		this.update_controls();
+	}
 }
 
 RadioComponent.prototype.remove_controls = function(controls){
@@ -913,7 +913,7 @@ DoubleSliderComponent.prototype.receive = function(value){
 DoubleSliderComponent.prototype.set_controls = function(controls){
 	this.clear_controls();
 	this.add_controls(controls);
-	}
+}
 
 DoubleSliderComponent.prototype.add_controls = function(controls){
 	controls = toControlArray(controls);
@@ -924,14 +924,14 @@ DoubleSliderComponent.prototype.add_controls = function(controls){
 			for(var i in controls){
 				if(controls[i]){
 					controls[i].set_target(this._Callback);
+				}
 			}
 		}
-	}
 		if(this._buttons==[]){
 			this._buttons = controls;
 		}
-	this.update_controls();
-}
+		this.update_controls();
+	}
 }
 
 DoubleSliderComponent.prototype.remove_controls = function(controls){
