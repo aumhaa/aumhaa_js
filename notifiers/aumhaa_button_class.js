@@ -41,7 +41,7 @@ ButtonClass.prototype.send = function(value, flash){
 	//midiBuffer[this._type][this._id] = [this, value];
 	//debug('ButtonClass.send():', value);
 	this.flash(flash);
-	ControlClass.prototype.send.call(this, value);
+	ButtonClass.super_.prototype.send.call(this, value);
 	//this.Super_().prototype.send.call(this, value);
 }
 

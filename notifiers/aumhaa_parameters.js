@@ -551,6 +551,27 @@ OffsetComponent.prototype.set_value = function(value){
 }
 
 OffsetComponent.prototype._update_buttons = function(){
+	// var _update_single_inc_button = function(incButton){
+	// 	if(incButton){
+	// 		if((this._value<this._max)&&(this._enabled)){
+	// 			incButton.send(this._onValue);
+	// 		}
+	// 		else{
+	// 			incButton.send(this._offValue);
+	// 		}
+	// 	}
+	// }
+	// var _update_single_dec_button = function(decButton){
+	// 	if(decButton){
+	// 		if((this._value>this._min)&&(this._enabled)){
+	// 			decButton.send(this._onValue);
+	// 		}
+	// 		else{
+	// 			decButton.send(this._offValue);
+	// 		}
+	// 	}
+	// }
+
 	for(var i in this._incButtons){
 		this._update_single_inc_button(this._incButtons[i]);
 	}
@@ -584,6 +605,7 @@ OffsetComponent.prototype._update_single_dec_button = function(decButton){
 OffsetComponent.prototype.set_inc_button = function(incButton){
 	if (isClass(incButton, 'NotifierClass') || !incButton){
 		this.clear_inc_buttons();
+		this._incButton = incButton;
 		this.add_inc_button(this._incButton);
 	}
 }
@@ -591,6 +613,7 @@ OffsetComponent.prototype.set_inc_button = function(incButton){
 OffsetComponent.prototype.set_dec_button = function(decButton){
 	if (isClass(decButton, 'NotifierClass') || !decButton){
 		this.clear_dec_buttons();
+		this._decButton = decButton;
 		this.add_dec_button(this._decButton);
 	}
 }
@@ -666,8 +689,10 @@ OffsetComponent.prototype.clear_dec_buttons = function(){
 }
 
 OffsetComponent.prototype.set_inc_dec_buttons = function(incButton, decButton){
+	// lcl_debug('set_inc_dec_buttons:', incButton, decButton);
 	this.set_inc_button(incButton);
 	this.set_dec_button(decButton);
+	this._update_buttons();
 }
 
 OffsetComponent.prototype.add_inc_dec_buttons = function(incButton, decButton){
@@ -749,9 +774,10 @@ RadioComponent.prototype._apiCallback = function(args){
 }
 
 RadioComponent.prototype._Callback = function(obj){
-	// lcl_debug('RadioComponent._Callback():', obj);
+	lcl_debug('RadioComponent._Callback():', obj._name, obj._value);
 	if(obj._value){
 		var val = this._buttons.indexOf(obj) + this._min;
+		lcl_debug('val is:', val);
 		this.set_value(val);
 	}
 }
@@ -783,9 +809,13 @@ RadioComponent.prototype.add_controls = function(controls){
 				}
 			}
 		}
-		if(this._buttons==[]){
-			this._buttons = controls;
-		}
+		//what IS THIS SHIT???
+		// if(this._buttons==[]){
+		// 	lcl_debug('this._buttons==[]');
+		// 	this._buttons = controls;
+		// 	lcl_debug('and now is our controls', controls);
+		// }
+		this._buttons = controls;
 		this.update_controls();
 	}
 }

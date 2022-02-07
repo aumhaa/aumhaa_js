@@ -80,4 +80,4 @@ GUIButton.prototype.get_coords= function(grid){
 	}
 }
 
-exports.GUIButton = GUIButton;
+exports.OldGUIButton = GUIButton;

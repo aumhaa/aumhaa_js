@@ -1,10 +1,11 @@
 // aumhaa_gui_control_class.js
 // written 3/29/20 to make use of new jsMaxObjListner object introduced in Max 8.14 beta
+// this class can deal with input from mod (using a control_registry to divy calls to its recieve func) or can be used standalone as a maxobject proxy.
 
 var util = require('aumhaa_util');
 util.inject(this, util);
 
-var LOCAL_DEBUG = true;
+var LOCAL_DEBUG = false;
 var lcl_debug = LOCAL_DEBUG && util.Debug ? util.Debug : function(){}
 
 var ControlClass = require('aumhaa_control_class').ControlClass;
@@ -64,6 +65,19 @@ GUIControl.prototype._send = function(value){
 	//lcl_debug('Haven\'t defined _send for GUIButton:', this._name)
 	if(this._valueListener){
 		this._valueListener.setvalue(value);
+	}
+}
+
+GUIControl.prototype.set = function(value){
+	this._last_sent_value = value;
+	this._set(value);
+}
+
+GUIControl.prototype._set = function(value){
+	//lcl_debug('Haven\'t defined _send for GUIButton:', this._name)
+	// lcl_debug('_set', value);
+	if(this._valueListener){
+		this._valueListener.setvalue_silent(value);
 	}
 }
 
@@ -192,6 +206,10 @@ GUITextButton.prototype._send = function(value){
 		this._jsObj.setattr(this._color_attribute, val);
 	}
 }
+
+// GUIControl.prototype._set = function(value){
+// 	this._send(value);
+// }
 
 exports.GUITextButton = GUITextButton;
 
