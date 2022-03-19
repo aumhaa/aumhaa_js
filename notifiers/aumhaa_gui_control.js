@@ -189,13 +189,13 @@ GUITextButton.prototype.pressed = function(){
 GUITextButton.prototype.turn_on = function(){
 	//this.send(this._onValue);
 	if(this._jsObj){
-		this._jsObj.setattr('activebgcolor', this._onValue);
+		this._jsObj.setattr(this._color_attribute, this._onValue);
 	}
 }
 
 GUITextButton.prototype.turn_off = function(){
 	if(this._jsObj){
-		this._jsObj.setattr('activebgcolor', this._offValue);
+		this._jsObj.setattr(this._color_attribute, this._offValue);
 	}
 }
 
