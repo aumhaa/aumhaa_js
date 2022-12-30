@@ -27,7 +27,11 @@ function CellBlockChooserComponent(name, args){
     'back',
     '_max_size',
     '_single_active',
-    '_last_single_active'
+    '_last_single_active',
+    '_contents',
+    '_active',
+    '_active_items',
+    '_active_indexes'
   ]);
   this._max_size = 100000;
   this._row_height = 12;
@@ -116,14 +120,22 @@ CellBlockChooserComponent.prototype.set_contents_from_obj = function(obj){
 }
 
 CellBlockChooserComponent.prototype.clear = function(){
+  // lcl_debug(this._name, 'clear();');
   this._obj.message('rows', 0);
   this._obj.message('set', 0, 0, '');
   this._obj.message('vscroll', 0);
+  for(var i in this._contents){
+    this._obj.message('cell', 0, parseInt(i), 'brgb', this.COLORS.transparent);
+  }
   this._contents = [];
   this._single_active = undefined;
   this._active = [];
   this._active_items = [];
   this._active_indexes = [];
+  // for(var i in this._contents){
+  //   this._contents[i].active = false;
+  //   this._obj.message('cell', 0, parseInt(i), 'brgb', this.COLORS.transparent);
+  // }
   this._refresh();
 }
 
@@ -213,9 +225,10 @@ CellBlockChooserComponent.prototype.set = function(num){
   this._refresh();
 }
 
-CellBlockChooserComponent.prototype.set_multi = function(){
+CellBlockChooserComponent.prototype.set_multi = function(items){
   if(this.multiSelect){
     var items = arrayfromargs(argumnents);
+    items = [].concat(items);
     lcl_debug('set_multi', items, items.length);
     this._active = [];
     this._active_items = [];
