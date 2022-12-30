@@ -27,7 +27,8 @@ DictModule.prototype._initialize = function()  {
 }
 
 function is_name(args){
-	return args ? args[0]=='name' : false;
+	debug('returning', args != undefined ? args[0]=='name' : false);
+	return args != undefined ? args[0]=='name' : false;
 }
 
 function ensure_array(obj){
@@ -129,6 +130,11 @@ function MidiIoNodeModule(name, args){
 		'global_update',
 		'on_source_chosen',
 		'on_target_chosen',
+		'on_name_changed',
+		'on_devices_changed',
+		'on_device_input_changed',
+		'on_device_output_changed',
+		'on_container_name_changed',
 		'dissolve',
 		'Alive',
 		'check_ports'
@@ -153,6 +159,7 @@ MidiIoNodeModule.prototype.__defineGetter__('outputPort', function(){
 MidiIoNodeModule.prototype.__defineGetter__('inputPort', function(){
 	return this._inputPort._value;
 });
+
 
 
 MidiIoNodeModule.prototype.init_routines = function(){
@@ -272,11 +279,13 @@ MidiIoNodeModule.prototype.detect_container = function(){
 	var old_id = this.container_id;
 	this.container_id = this.apiUtility.container_from_id(this.device_id);
 	if(old_id != this.container_id){
+		debug('resetting name listener:')
 		this.container_name_listener.id = this.container_id;
 		this.container_name_listener.property = 'name';
 		//outlet(1, 'path', container_name_listener.unquotedpath + ' devices');
 		this.devices_listener.path = this.container_name_listener.unquotedpath + ' devices'
 	}
+	debug('new id:', this.container_name_listener.unquotedpath);
 	return old_id != this.container_id;
 }
 
@@ -330,8 +339,9 @@ MidiIoNodeModule.prototype.dissolve = function(){
 
 //callback for name_listener liveAPI object
 MidiIoNodeModule.prototype.on_name_changed = function(args){
+	debug('on_name_changed()', args, 'alive:', this.Alive, 'is_name:', is_name(args));
 	if((this.Alive)&&(is_name(args))){
-		debug('on_name_changed()', args);
+		debug('inner on_name_changed()', args);
 		this.update_name();
 		var update = this.detect_container() + this.detect_input_device() + this.detect_output_device();
 		update&&this.update_nodes();
@@ -399,10 +409,11 @@ MidiIoNodeModule.prototype.global_update = function(){
 	}
 
 	for(var uid in nodes){
-		debug('nodes[uid]', uid, nodes[uid]._uid);
+		// debug('nodes[uid]', uid, uid!=null ? nodes[uid]._uid : 'null');
+		// if()
 		try{
 			if((!nodes[uid].hasOwnProperty('Alive'))||(!nodes[uid].Alive)){
-				// debug('not Alive:', uid);
+				debug('not Alive:', uid);
 				remove_node(uid);
 			}
 		}
@@ -482,13 +493,13 @@ MidiIoNodeModule.prototype.update_track_id = function(){
 }
 
 MidiIoNodeModule.prototype.update_container_id = function(){
-	// debug('update_container_id()');
+	debug('update_container_id()');
 	this.container_id = this.apiUtility.container_from_id(this.device_id);
 	// debug('container_id:', this.container_id);
 }
 
 MidiIoNodeModule.prototype.update_name = function(){
-	// debug('update_name()');
+	debug('update_name()');
 	this.device_name = this.apiUtility.device_name_from_id(this.device_id);
 	// this.routings.set('Nodes::'+this._uid+'::name',  this.device_name);
 	this.settings_dict.set('name',  this.device_name);
@@ -496,7 +507,7 @@ MidiIoNodeModule.prototype.update_name = function(){
 }
 
 MidiIoNodeModule.prototype.update_container_name = function(){
-	// debug('update_container_name()');
+	debug('update_container_name()');
 	this.container_name = this.apiUtility.container_name_from_id(this.container_id);
 	// debug('container_name is:', this.container_name);
 	// this.routings.set('Nodes::'+this._uid+'::container', this.container_name);
@@ -548,8 +559,10 @@ MidiIoNodeModule.prototype.update_menus = function(){
 	var keys = ensure_array(this.routings._dict.get('Nodes').getkeys());
 	for(var i in keys){
 		if(keys[i]!=this._uid){
-			this.target_menu.push({name:this.routings.get('Nodes::'+keys[i]+'::output_device')+' ('+this.routings.get('Nodes::'+keys[i]+'::name')+')', node:keys[i], type:'IONode'});
-			this.source_menu.push({name:this.routings.get('Nodes::'+keys[i]+'::input_device')+' ('+this.routings.get('Nodes::'+keys[i]+'::name')+')', node:keys[i], type:'IONode'});
+			if(this.routings.get('Nodes::'+keys[i]+'::name')!=undefined){
+				this.target_menu.push({name:this.routings.get('Nodes::'+keys[i]+'::output_device')+' ('+this.routings.get('Nodes::'+keys[i]+'::name')+')', node:keys[i], type:'IONode'});
+				this.source_menu.push({name:this.routings.get('Nodes::'+keys[i]+'::input_device')+' ('+this.routings.get('Nodes::'+keys[i]+'::name')+')', node:keys[i], type:'IONode'});
+			}
 		}
 	}
 	for(var i in this.midi_input_ports){
@@ -663,9 +676,10 @@ MidiIoNodeModule.prototype._on_enable_output = function(val){
 	this.output_enable = val>0;
 }
 
-MidiIoNodeModule.prototype.dissolve = function(){
-	this._global.midiNodes[this._uid]=null;
-	delete this._global[this._uid];
-}
+// MidiIoNodeModule.prototype.dissolve = function(){
+// 	this._global.midiNodes[this._uid]=null;
+// 	delete this._global[this._uid];
+//
+// }
 
 exports.MidiIoNodeModule = MidiIoNodeModule;
