@@ -5,9 +5,9 @@ function nop(){};
 exports.nop = nop;
 
 
+
 function inject(source, dest){
 	for(var i in source){
-		//debug('adding:', i);
 		dest[i] = source[i];
 	}
 }
@@ -20,19 +20,6 @@ function init_utils(script){
 }
 
 exports.init_utils = init_utils;
-
-
-function mixin(dest){
-	Array.prototype.slice.call(arguments, 1).forEach(function (src){
-		Object.keys(src).forEach(function (prop){
-			var descriptor = Object.getOwnPropertyDescriptor(src, prop);
-			Object.defineProperty(dest, prop, descriptor);
-		});
-	});
-	return dest;
-}
-
-exports.mixin = mixin;
 
 
 function name_from_constructor(constructor){
@@ -49,40 +36,51 @@ function functionName(fun) {
 exports.functionName = functionName;
 
 
-/*
-function SuperClass(name){
-	this._name = name;
-}
+function extend(obj, mixin) {
+	for (var mixinProp in mixin) {
+	  if (mixin.hasOwnProperty(mixinProp)) {
+		obj.prototype[mixinProp] = mixin[mixinProp]; // Add mixin properties
+	  }
+	}
+	return obj;
+  }
 
-SuperClass.prototype.func = function(){
-	debug('Original function:', this._name);
-}
+exports.extend = extend;
 
-function SubClass(name){
-	SubClass.super_.call(this, name);
-}
-
-inherits(SubClass, SuperClass);
-
-SubClass.prototype.func = function(){
-		debug('and now SubClass func:', this._name);
-		SubClass.super_.prototype.test.call(this);
-}
-*/
 
 /*in order for inherits to work correctly with util.isClass(), the object must be written
 in the old fashioned "function foo()" manner, not as "var foo = function()".  We're using
 a terrible hack with functionName() to get the className variable, and its basically
 just parsing the js code and doing its best to figure out what the value should be.*/
 
-function inherits(ctor, superCtor){
+function superFetcher(Super){
+	var Super = Super;
+	var func = function(){
+		post('getting super', Super._className, '\n');
+		return Super;
+	}
+	return func;
+}
+
+function inherits(ctor, superCtor, mixins){
+
+	// ctor.prototype._className = functionName(ctor);
+	var mixins = [].concat(mixins);
 
 	ctor.super_ = superCtor;
 	superCtor.prototype._className = functionName(superCtor);
-	ctor.prototype = Object.create(superCtor.prototype, {constructor:{value: ctor, enumerable: false, writable: true, configurable: true}});
+	ctor.prototype = Object.create(superCtor.prototype, {
+		constructor:{value: ctor, enumerable: false, writable: true, configurable: true}
+	});
+	for(var i in mixins){
+		if (mixins[i] instanceof Object) {
+			ctor = extend(ctor, mixins[i]);
+		}
+	}
 	ctor.prototype._className = functionName(ctor);
-	ctor.prototype.Super_ = function(){return superCtor;}
-	// post('inherits: '+superCtor.prototype._className+' '+ctor.prototype._className+'\n');
+
+	// ctor.prototype.__defineGetter__('Super', superFetcher(Super));
+	ctor.prototype.Super_ = function(){return superCtor};
 }
 
 exports.inherits = inherits;
@@ -129,21 +127,20 @@ function class_inherits(ctor, superCtor){
 exports.class_inherits = class_inherits;
 
 
-function extend(destination, source){
-	for (var k in source){
-		if (source.hasOwnProperty(k)){
-			destination[k] = source[k];
-		}
-	}
-	return destination;
-}
 
-exports.extend = extend;
+//MyClass.prototype = clone(AnotherClass.prototype);
+// function clone (obj)
+// {
+// 	function CloneFactory () {}
+// 	CloneFactory.prototype = obj;
 
+// 	return new CloneFactory();
+// }
 
 function clone_with_extension(source, mixins){
 	//var destination = function () {}
-	var destination = source.clone();
+	// var destination = source.clone();
+	var destination = new source();
 	//inherits(destination, source);
 	//destination.prototype = Object.create(source.prototype, mixins);
 	//destination.prototype.constructor = source;
@@ -200,7 +197,7 @@ function protoarrayfromargs(args){
 exports.protoarrayfromargs = protoarrayfromargs;
 
 
-function flatten1(args){
+function flatten(args){
 	var arr =  Array.prototype.slice.call(args, 0);
 	for(var i=0;i<arr.length;i++){
 		if(arr[i] instanceof Array){
@@ -211,7 +208,7 @@ function flatten1(args){
 	return arr;
 }
 
-exports.flatten1 = flatten1;
+exports.flatten = flatten;
 
 
 function assign_jsarg_attributes(){
@@ -238,9 +235,7 @@ function deprivatize_script_functions(script){
 exports.deprivatize_script_functions = deprivatize_script_functions;
 
 
-//Used to post when DEBUG is true
-//Setup in js by:
-//debug = (DEBUG&&Debug) ? Debug : function(){};
+//var debug = DEBUG && Debug ? Debug : function(){};
 Debug = function(){
 	var args = protoarrayfromargs(arguments);
 	for(var i in args){
@@ -254,6 +249,7 @@ Debug = function(){
 exports.Debug = Debug;
 
 
+// var debug = LOCAL_DEBUG && util.DebugNamespace ? new script.DebugNamespace('namespace->').debug : function(){}
 DebugNamespace = function(prefix){
 	var prefix = typeof(prefix)=='string'?prefix:'debug->';
 	this.debug = function(){
@@ -267,24 +263,13 @@ DebugNamespace = function(prefix){
 	}
 }
 
-// DebugNamespace.prototype.debug = function(){
-// 	var args = protoarrayfromargs(arguments);
-// 	for(var i in args){
-// 		if(args[i] instanceof Array){
-// 			args[i] = args[i].join(' ');
-// 		}
-// 	}
-// 	post(this.prefix, args, '\n');
-// }
-
 exports.DebugNamespace = DebugNamespace;
 
 
 //used to reinitialize the script immediately on saving;
 //can be turned on by changing FORCELOAD to 1
 //should only be turned on while editing
-//Setup in js by:
-//forceload = (FORCELOAD&&Forceload) ? Forceload : function(){};
+//Setup in js by:  forceload = (FORCELOAD&&Forceload) ? Forceload : function(){};
 
 function Forceload(script){
 	post('FORCELOAD!!!!!!!\n');
@@ -313,15 +298,7 @@ exports.Forceload = Forceload;
 	}
 }*/
 
-/*function clone (obj)
-{
-	function CloneFactory () {}
-	CloneFactory.prototype = obj;
 
-	return new CloneFactory();
-}*/
-
-//MyClass.prototype = clone(AnotherClass.prototype);
 
 
 function startsWith(str, search){
@@ -337,31 +314,6 @@ function parse_ids(arr){
 
 exports.parse_ids = parse_ids;
 
-
-// function dict_to_jsobj(dict) {
-// 	if (dict == null) return null;
-// 	var o = new Object();
-// 	var keys = dict.getkeys();
-// 	if (keys == null || keys.length == 0) return null;
-// 	if (keys instanceof Array) {
-// 		for (var i = 0; i < keys.length; i++){
-// 			var value = dict.get(keys[i]);
-//
-// 			if (value && value instanceof Dict) {
-// 				value = dict_to_jsobj(value);
-// 			}
-// 			o[keys[i]] = value;
-// 		}
-// 	} else {
-// 		var value = dict.get(keys);
-//
-// 		if (value && value instanceof Dict) {
-// 			value = dict_to_jsobj(value);
-// 		}
-// 		o[keys] = value;
-// 	}
-// 	return o;
-// }
 
 function dict_to_jsobj(dict){
 	var obj = JSON.parse(dict.stringify());
@@ -425,11 +377,11 @@ function jsobj_to_dict(o){
 }
 
 //untested but should work fine...newer solution, used explicitly in many projects already.
-// function jsobj_to_dict(obj){
-// 	var dict = new Dict();
-// 	dict.pars(JSON.stringify(obj));
-// 	return dict
-// }
+function jsobj_to_dict(obj){
+	var dict = new Dict();
+	dict.parse(JSON.stringify(obj));
+	return dict
+}
 
 exports.jsobj_to_dict = jsobj_to_dict;
 
@@ -594,7 +546,7 @@ function autobind(self) {
 	for (var i = 0; i < keys.length; i++) {
 		var key = keys[i];
 		var val = self[key];
-		if (key !== 'constructor' && typeof val === 'function') {
+		if (key !== 'constructor' &&  val instanceof Object) {
 			// Debug('binding:', key);
 			self[key] = val.bind(self);
 		}
@@ -604,6 +556,7 @@ function autobind(self) {
 };
 
 exports.autobind = autobind;
+
 
 function eventify(self){
     self.events = {};
@@ -666,3 +619,35 @@ function aumhaaSetup(script){
 	};
 	script['inherits'] = inherits;
 }
+
+
+// Object.defineProperties(Object, {
+// 	'extend': {
+// 	  'configurable': true,
+// 	  'enumerable': false,
+// 	  'value': function extend (what, wit) {
+// 		var
+// 		  extObj, key,
+// 		  witKeys = Object.keys(wit),
+// 		  l = witKeys.length;
+  
+// 		extObj = Object.keys(what).length ? Object.clone(what) : {};
+  
+// 		while(l --) {
+// 		  key = witKeys[l];
+// 		  Object.defineProperty(extObj, key, Object.getOwnPropertyDescriptor(wit, key));
+// 		}
+  
+// 		return extObj;
+// 	  },
+// 	  'writable': true
+// 	},
+// 	'clone': {
+// 	  'configurable': true,
+// 	  'enumerable': false,
+// 	  'value': function clone (obj) {
+// 		return Object.extend({}, obj);
+// 	  },
+// 	  'writable': true
+// 	}
+//   });

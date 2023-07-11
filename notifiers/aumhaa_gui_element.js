@@ -13,7 +13,7 @@ var ControlClass = require('aumhaa_control_class').ControlClass;
 function GUI_Element(name, args){
 	var self = this;
 	this._grid = {};
-	this.add_bound_properties(this, ['receive', 'receive_notifier', '_x', '_y']);
+	// this.add_bound_properties(this, ['receive', 'receive_notifier', '_x', '_y']);
 	ControlClass.super_.call(this, name, args);
 }
 

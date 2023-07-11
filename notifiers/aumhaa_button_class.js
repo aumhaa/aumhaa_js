@@ -14,7 +14,7 @@ var consts = require('aumhaa_notifier_consts').consts;
 function ButtonClass(identifier, name, _send, args){
 	var self = this;
 	//lcl_debug('making button:', name, this._bound_properties);
-	this.add_bound_properties(this, ['get_target', 'set_send_function', 'pressed', 'turn_on', 'turn_off', 'set_on_off_values', 'set_translation', 'flash', 'get_coords', '_grid']);
+	// this.add_bound_properties(this, ['get_target', 'set_send_function', 'pressed', 'turn_on', 'turn_off', 'set_on_off_values', 'set_translation', 'flash', 'get_coords', '_grid']);
 	this._type = consts.NOTE_TYPE;
 	this._onValue = 127;
 	this._offValue = 0;
@@ -103,7 +103,7 @@ exports.ButtonClass = ButtonClass;
 
 function TextButtonClass(identifier, name, _send, args){
 	var self = this;
-	this.add_bound_properties(this, ['_text_button', 'set_target', 'remove_target', 'clear_targets']);
+	// this.add_bound_properties(this, ['_text_button', 'set_target', 'remove_target', 'clear_targets']);
 	TextButtonClass.super_.call(this, identifier, name, _send, args);
 }
 

@@ -12,7 +12,7 @@ var consts = require('aumhaa_notifier_consts').consts;
 //A Notifier representing a physical control that can send and receive MIDI
 
 function ControlClass(identifier, name, args){
-	this.add_bound_properties(this, ['receive', 'receive_notifier', '_x', '_y', '_send', 'send']);
+	// this.add_bound_properties(this, ['receive', 'receive_notifier', '_x', '_y', '_send', 'send']);
 	//lcl_debug('making control:', name, this._bound_properties);
 	this._type = consts.NONE_TYPE;
 	this._id = identifier;

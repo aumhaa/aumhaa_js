@@ -10,7 +10,7 @@ var Bindable = require('aumhaa_bindable').Bindable;
 var NotifierClass = require('aumhaa_notifier_class').NotifierClass;
 
 function NotificationDisplayComponent(name, args){
-	this.add_bound_properties(this, ['_show_message', '_clear_messages_queued', '_display_messages', 'show_message', 'add_subject', 'remove_subject', 'clear_subjects', 'make_parameter_function', 'set_priority']);
+	// this.add_bound_properties(this, ['_show_message', '_clear_messages_queued', '_display_messages', 'show_message', 'add_subject', 'remove_subject', 'clear_subjects', 'make_parameter_function', 'set_priority']);
 	var self = this;
 	this._subjects = {};
 	this._groups = [];

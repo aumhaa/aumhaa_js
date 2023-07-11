@@ -68,16 +68,35 @@ var asyncSetTimer = new Task(asyncFlush, this);
 
 var asyncQueue = [];
 var asyncTimer;
+var asyncMaxEvents = 0;
 
 function asyncFlush(){
   // run promise callbacks
-  // post('asyncFlush: '+asyncQueue.length+'\n');
-  for (var i = 0; i < asyncQueue.length; i++)
-    asyncQueue[i][0](asyncQueue[i][1]);
+  if(asyncMaxEvents==0){
+    // post('____________________________________ asyncFlush: '+asyncQueue.length+'\n');
+    for (var i = 0; i < asyncQueue.length; i++) {
+      asyncQueue[i][0](asyncQueue[i][1]);
+    }
+    // reset async asyncQueue
+    asyncQueue = [];
+    asyncTimer = false;
+  }
+  else {
+    post(' asyncFlush: '+asyncQueue.length+'\n');
+    var max = asyncQueue.length > asyncMaxEvents ? asyncMaxEvents : asyncQueue.length;
+    // post('max is: '+max+'\n');
+    for (var i = 0; i < max; i++) {
+      asyncQueue[i][0](asyncQueue[i][1]);
+    }
+    asyncQueue.splice(0, max);
+    // reset async asyncQueue
+    // asyncQueue = [];
 
-  // reset async asyncQueue
-  asyncQueue = [];
-  asyncTimer = false;
+    asyncTimer = asyncQueue.length > 0 ? true : false;
+    if(asyncTimer){
+      asyncSetTimer.schedule(0);
+    }
+  }
 }
 
 function asyncCall(callback, arg){

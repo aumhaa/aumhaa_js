@@ -26,7 +26,7 @@ function FloatingWindowModule(name, args){
 	this._notitle = false;
 	this._float = false;
 	this._window_position = undefined;
-	this.add_bound_properties(this, ['input_from_patcher', '_float_toggle', 'toggle_float', '_toggle', 'toggle_window', '_sizeX', '_sizeY', '_origSizeX', '_origSizeY', '_obj', '_window_position', '_pcontrol', '_thispatcher', 'lock', 'unlock', 'open', 'close', 'store_window_position']);
+	// this.add_bound_properties(this, ['input_from_patcher', '_float_toggle', 'toggle_float', '_toggle', 'toggle_window', '_sizeX', '_sizeY', '_origSizeX', '_origSizeY', '_obj', '_window_position', '_pcontrol', '_thispatcher', 'lock', 'unlock', 'open', 'close', 'store_window_position']);
 	FloatingWindowModule.super_.call(this, name, args);
 	this._toggle = new ToggledParameter(this._name + '_Toggle', {'onValue':colors.RED, 'offValue':colors.CYAN, 'value':0});
 	this._toggle.set_target(this.toggle_window);

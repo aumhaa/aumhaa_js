@@ -21,7 +21,7 @@ var VERSION = 'b9992';
 
 function ModComponent(parent, type, unique, legacy, args){
 	var self = this;
-	this.add_bound_properties(this, ['callback', 'debug']);
+	// this.add_bound_properties(this, ['callback', 'debug']);
 	this.parent = parent;
 	this.debug = LCL_DEBUG ? new util.DebugNamespace('aumhaa_mod->').debug : function(){};
 	this.patch_type = type ? type : 'info';
@@ -52,21 +52,21 @@ function ModComponent(parent, type, unique, legacy, args){
 			}
 		}
 	}
-	this.add_bound_properties(this,
-		['modClientID',
-		'modFunctions',
-		'modAddresses',
-		'legacy',
-		'unique',
-		'callback',
-		'debug',
-		'finder',
-		'dissolve',
-		'restart',
-		'disconnect',
-		'list_addresses',
-		'list_functions'
-	]);
+	// this.add_bound_properties(this,
+	// 	['modClientID',
+	// 	'modFunctions',
+	// 	'modAddresses',
+	// 	'legacy',
+	// 	'unique',
+	// 	'callback',
+	// 	'debug',
+	// 	'finder',
+	// 	'dissolve',
+	// 	'restart',
+	// 	'disconnect',
+	// 	'list_addresses',
+	// 	'list_functions'
+	// ]);
 	ModComponent.super_.call(this, parent._name, args);
 
 }
@@ -216,7 +216,7 @@ ModComponent.prototype.make_func = function(address){
 }
 
 ModComponent.prototype.anything = function(){
-	var args = flatten1(arguments);
+	var args = util.flatten(arguments);
 	this.debug('anything', args[0], args.slice(1));
 	if(this.finder == undefined){
 		this.debug('adding to stack:', args[0], args.slice(1));
@@ -254,7 +254,7 @@ ModComponent.prototype.send_explicit = function(){
 }
 
 ModComponent.prototype.SendDirect = function(){
-	var args = flatten1(arguments);
+	var args = util.flatten(arguments);
 	try{
 		this.finder.call.apply(this.finder, args);
 	}
@@ -264,7 +264,7 @@ ModComponent.prototype.SendDirect = function(){
 }
 
 ModComponent.prototype.Send = function(){
-	var args = flatten1(arguments);
+	var args = util.flatten(arguments);
 	try{
 		this[args[0]].apply(this, args.slice(1));
 	}

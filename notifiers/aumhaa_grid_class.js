@@ -14,7 +14,7 @@ var NotifierClass = require('aumhaa_notifier_class').NotifierClass;
 
 function GridClass(width, height, name, args){
 	var self = this;
-	this.add_bound_properties(this, ['get_target', 'mask', 'add_control', 'controls', 'receive', 'get_button', 'reset', 'clear_buttons', 'sub_grid', 'clear_translations', 'button_coords']);
+	// this.add_bound_properties(this, ['get_target', 'mask', 'add_control', 'controls', 'receive', 'get_button', 'reset', 'clear_buttons', 'sub_grid', 'clear_translations', 'button_coords']);
 	//lcl_debug('making GridClass:', width, height, name, args, this._bound_properties);
 	//this._bound_properties = ['receive'];
 	var contents = [];

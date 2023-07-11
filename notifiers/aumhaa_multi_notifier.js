@@ -18,7 +18,7 @@ function MultiControlClass(identifier, name, args){
 	this._offValue = 0;
 	this._translation = -1;
 	this._flash = false;
-	this.add_bound_properties(this, ['_name', '_controls']);
+	// this.add_bound_properties(this, ['_name', '_controls']);
 	MultiControlClass.super_.call(this, identifier, name, args);
 }
 

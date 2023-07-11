@@ -30,57 +30,89 @@ else{
 
 
 function EventEmitter(name, args){
-	this._events = {};
 	this.add_bound_properties(this, [
 		 '_events',
 		 'on',
 		 'off',
 		 'emit',
-		 'once'
+		 'once',
+     'clear_all_events'
 	]);
+  this._events = {};
 	EventEmitter.super_.call(this, name, args);
+  // this.autobind(this);
 };
 
 util.inherits(EventEmitter, Bindable);
 
 EventEmitter.prototype.on = function(event, listener){
-		this.off(event, listener);
-    if (typeof this._events[event] !== 'object') {
-        this._events[event] = [];
+    var self = this.instance
+		self.off(event, listener);
+    if(listener == undefined) {
+      lcl_debug('listener undefined', event);
     }
-    this._events[event].push(listener);
+    else if (listener instanceof Object) {
+      if ( !(self._events[event] instanceof Object)) {
+          self._events[event] = [];
+      }
+      this._events[event].push(listener);
+    }
 };
 
 EventEmitter.prototype.off = function(event, listener){
+    var self = this.instance
     var idx;
-    if (typeof this._events[event] === 'object') {
-        idx = indexOf(this._events[event], listener);
+    if ( self._events[event] instanceof Object) {
+        idx = indexOf(self._events[event], listener);
         if (idx > -1) {
-            this._events[event].splice(idx, 1);
+            self._events[event].splice(idx, 1);
         }
     }
 };
 
+EventEmitter.prototype.clear_all_events = function(){
+  this.instance._events = {};
+};
+
+// EventEmitter.prototype.clear_all_events = function(){
+
+// };
+
 EventEmitter.prototype.emit = function(event){
-    var i, listeners, length, args = [].slice.call(arguments, 1);
+    var self = this.instance;
+    var i, listeners, length;
+    var args = [].slice.call(arguments, 1);
+    // debug('emit:', i, JSON.stringify(listeners), length, args);
+    // debug('event:', event, this._name);
 		try{
-        listeners = this._events[event].slice();
+      if(event in self._events){
+        listeners = self._events[event].slice();
         length = listeners.length;
         for (i = 0; i < length; i++) {
-            listeners[i].apply(this, args);
-        }
-    }
-		catch(e){
-			e.message = 'emit error' + e.message;
+          // debug('listener:', JSON.stringify(listeners[i]));
+          if( listeners[i] instanceof Object){
+            try {
+              listeners[i].apply(self, args);
+            } catch(e) {
+              lcl_debug('listener:', i, listeners[i], length, event);
+            }
+          }
+        } 
+      } else {
+        lcl_debug('no event found:', event, self._name);
+      }
+    } catch(e) {
+			e.message = 'emit error:' + e.message;
 			LOCAL_DEBUG && util.report_error(e);
-		}
+    }
 };
 
 EventEmitter.prototype.once = function(event, listener){
-    this.on(event, function g () {
-        this.off(event, g);
-        listener.apply(this, arguments);
-    });
+  var self = this.instance;
+  self.on(event, function g () {
+      self.off(event, g);
+      listener.apply(self, arguments);
+  });
 };
 
 exports.EventEmitter = EventEmitter;

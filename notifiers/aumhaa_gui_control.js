@@ -16,17 +16,17 @@ var consts = require('aumhaa_notifier_consts').consts;
 
 function GUIControl(name, args){
 	var self = this;
-	this.add_bound_properties(this, [
-		'set_send_function',
-		'get_coords',
-		'receive',
-		'receive_notifier',
-		'_x',
-		'_y',
-		'_send',
-		'send',
-		'_momentary'
-	]);
+	// this.add_bound_properties(this, [
+	// 	'set_send_function',
+	// 	'get_coords',
+	// 	'receive',
+	// 	'receive_notifier',
+	// 	'_x',
+	// 	'_y',
+	// 	'_send',
+	// 	'send',
+	// 	'_momentary'
+	// ]);
 	this._valueListener = undefined;
 	this._momentary = false;
 	GUIControl.super_.call(this, 0, name, args);
@@ -94,7 +94,7 @@ exports.GUIControl = GUIControl;
 
 function GUIButton(name, args){
 	var self = this;
-	this.add_bound_properties(this, ['pressed', 'turn_on', 'turn_off', 'set_on_off_values', 'set_translation', 'flash']);
+	// this.add_bound_properties(this, ['pressed', 'turn_on', 'turn_off', 'set_on_off_values', 'set_translation', 'flash']);
 	this._type = consts.MAXOBJ_TYPE;
 	this._onValue = 1;
 	this._offValue = 0;

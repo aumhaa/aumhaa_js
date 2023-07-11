@@ -14,7 +14,7 @@ var Bindable = require('aumhaa_bindable').Bindable;
 
 function TaskServer(script, interval){
 	var self = this;
-	this.add_bound_properties(this, ['_script', '_queue', '_interval', '_run', '_tsk']);
+	// this.add_bound_properties(this, ['_script', '_queue', '_interval', '_run', '_tsk']);
 	this._queue = {};
 	this._interval = interval || 100;
 	this._run = function(){

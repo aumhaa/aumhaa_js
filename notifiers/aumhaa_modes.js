@@ -23,21 +23,21 @@ function DefaultPageStackBehaviour(parent_mode_object){
 	var self = this;
 	var parent = parent_mode_object;
 	this.press_immediate = function(button){
-		//debug('press_immediate', parent, parent.mode_buttons);
+		//lcl_debug('press_immediate', parent, parent.mode_buttons);
 		var mode = parent.mode_buttons.indexOf(button);
 		parent.splice_mode(mode);
 		parent.push_mode(mode);
 		parent.recalculate_mode();
 	}
 	this.press_delayed = function(button){
-		//debug('press_delayed');
+		//lcl_debug('press_delayed');
 	}
 	this.release_immediate = function(button){
-		//debug('release_immediate');
+		//lcl_debug('release_immediate');
 		parent.clean_mode_stack();
 	}
 	this.release_delayed = function(button){
-		//debug('release_delayed');
+		//lcl_debug('release_delayed');
 		var mode = parent.mode_buttons.indexOf(button);
 		parent.pop_mode(mode);
 		parent.recalculate_mode();
@@ -48,11 +48,11 @@ exports.DefaultPageStackBehaviour = DefaultPageStackBehaviour;
 
 
 function DefaultPageStackBehaviourWithModeShift(parent_mode_object){
-	//debug('initializing DefaultPageStackBehaviourWithModeShift');
+	//lcl_debug('initializing DefaultPageStackBehaviourWithModeShift');
 	var self = this;
 	var parent = parent_mode_object;
 	this.press_immediate = function(button){
-		//debug('press_immediate', parent, parent.mode_buttons);
+		//lcl_debug('press_immediate', parent, parent.mode_buttons);
 		var mode = parent.mode_buttons.indexOf(button);
 		if(mode!=parent.current_mode()){
 			parent.splice_mode(mode);
@@ -65,11 +65,11 @@ function DefaultPageStackBehaviourWithModeShift(parent_mode_object){
 		}
 	}
 	this.press_delayed = function(button){
-		//debug('press_delayed');
+		//lcl_debug('press_delayed');
 
 	}
 	this.release_immediate = function(button){
-		//debug('release_immediate');
+		//lcl_debug('release_immediate');
 		parent.clean_mode_stack();
 		var mode = parent.mode_buttons.indexOf(button);
 		if(mode==parent.current_mode()){
@@ -77,7 +77,7 @@ function DefaultPageStackBehaviourWithModeShift(parent_mode_object){
 		}
 	}
 	this.release_delayed = function(button){
-		//debug('release_delayed');
+		//lcl_debug('release_delayed');
 		var mode = parent.mode_buttons.indexOf(button);
 		//if(mode!=parent.current_mode())
 		//{
@@ -99,23 +99,23 @@ function CyclePageStackBehaviour(parent_mode_object){
 	this.__lineage__ = 'CyclePageStackBehaviour';
 	var parent = parent_mode_object;
 	this.press_immediate = function(button){
-		//debug('press_immediate', parent, parent.mode_buttons);
-		//debug(parent._value, parent._mode_callbacks);
+		//lcl_debug('press_immediate', parent, parent.mode_buttons);
+		//lcl_debug(parent._value, parent._mode_callbacks);
 		var mode = (parent._value + 1) % parent._mode_callbacks.length;
-		//debug('new_mode:', mode);
+		//lcl_debug('new_mode:', mode);
 		parent.splice_mode(mode);
 		parent.push_mode(mode);
 		parent.recalculate_mode();
 	}
 	this.press_delayed = function(button){
-		//debug('press_delayed');
+		//lcl_debug('press_delayed');
 	}
 	this.release_immediate = function(button){
-		//debug('release_immediate');
+		//lcl_debug('release_immediate');
 		parent.clean_mode_stack();
 	}
 	this.release_delayed = function(button){
-		//debug('release_delayed');
+		//lcl_debug('release_delayed');
 		//var mode = parent.mode_buttons.indexOf(button);
 		parent.pop_mode();
 		parent.recalculate_mode();
@@ -293,7 +293,7 @@ ModeClass.prototype.toggle_value = function(button){
 }
 
 ModeClass.prototype.change_mode = function(value, force){
-	// debug('change_mode', value, this._mode_callbacks.length);
+	// lcl_debug('change_mode', value, this._mode_callbacks.length);
 	if (value < (this._mode_callbacks.length)){
 		if((this._value != value)||(force)){
 			this._value = value;
@@ -304,14 +304,14 @@ ModeClass.prototype.change_mode = function(value, force){
 }
 
 ModeClass.prototype.update = function(){
-	debug('update');
+	lcl_debug('update');
 	var callback = this._mode_callbacks[this._value];
 	if(callback){
 		try{
 			callback();
 		}
 		catch(err){
-			lcl_debug('callback error:', err, 'for mode index', this._value,'for', this._name, 'mode component');
+			lcl_lcl_debug('callback error:', err, 'for mode index', this._value,'for', this._name, 'mode component');
 			util.report_error(err);
 		}
 	}
@@ -335,7 +335,7 @@ ModeClass.prototype.add_mode = function(mode, callback){
 }
 
 ModeClass.prototype.set_mode_buttons = function(buttons){
-	//lcl_debug('set_mode_buttons:', buttons ? 'buttons length:' + buttons.length : 'incoming buttons undefined', this._mode_callbacks.length);
+	//lcl_lcl_debug('set_mode_buttons:', buttons ? 'buttons length:' + buttons.length : 'incoming buttons undefined', this._mode_callbacks.length);
 	if (((buttons == undefined)||(buttons.length == this._mode_callbacks.length))&&(buttons != this.mode_buttons)){
 		for (var i in this.mode_buttons){
 			this.mode_buttons[i].remove_target(this.mode_value);
@@ -350,7 +350,7 @@ ModeClass.prototype.set_mode_buttons = function(buttons){
 			buttons[i].set_target(this.mode_value);
 			i == this._value ? buttons[i].turn_on() : buttons[i].turn_off();
 		}
-		//lcl_debug('mode buttons length: ' + this._name + ' ' + this.mode_buttons.length)
+		//lcl_lcl_debug('mode buttons length: ' + this._name + ' ' + this.mode_buttons.length)
 	}
 }
 
@@ -392,7 +392,7 @@ ModeClass.prototype.pop_all_modes = function(){
 }
 
 ModeClass.prototype.recalculate_mode = function(){
-	//debug('recalculate_mode');
+	//lcl_debug('recalculate_mode');
 	var mode = this._mode_stack.length ? this._mode_stack[0] : 0;
 	this.change_mode(mode);
 }
@@ -407,7 +407,7 @@ exports.ModeClass = ModeClass;
 function PageStack(number_of_modes, name, args){
 	this.add_bound_properties(this, ['current_page', 'restore_mode']);
 
-	//lcl_debug('making pagestack', number_of_modes, name, args);
+	//lcl_lcl_debug('making pagestack', number_of_modes, name, args);
 	this._pages = new Array(number_of_modes);
 	PageStack.super_.call(this, number_of_modes, name, args);
 	this._value = -1;
@@ -591,7 +591,7 @@ util.inherits(ModeSwitchablePage, Page);
 
 ModeSwitchablePage.prototype._mode_button_value = function(obj){
 	//lcl_debug('old altValue');
-	//debug('_mode_button_value', obj, obj._value);
+	//lcl_debug('_mode_button_value', obj, obj._value);
 	var new_mode = false;
 	if(obj){
 		new_mode= obj._value > 0;

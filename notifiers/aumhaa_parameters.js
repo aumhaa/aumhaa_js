@@ -6,7 +6,7 @@ var util = require('aumhaa_util');
 util.inject(this, util);
 
 var LOCAL_DEBUG = false;
-var lcl_debug = LOCAL_DEBUG && util.Debug ? util.Debug : function(){}
+var lcl_debug = LOCAL_DEBUG && util.DebugNamespace ? new util.DebugNamespace('aumhaa_parameters->').debug : function(){}
 
 var NotifierClass = require('aumhaa_notifier_class').NotifierClass;
 var GridClass = require('aumhaa_grid_class').GridClass;
@@ -35,24 +35,24 @@ function buttonInGroup(button_groups, button){
 
 
 function ParameterClass(name, args){
-	this.add_bound_properties(this, [
-		'_onValue',
-		'_offValue',
-		'receive',
-		'set_value',
-		'update_single_control',
-		'update_control',
-		'_apiCallback',
-		'_Callback',
-		'set_control',
-		'add_control',
-		'remove_control',
-		'clear_controls',
-		'set_on_off_values',
-		'_parent',
-		'_control',
-		'_controls'
-	]);
+	// this.add_bound_properties(this, [
+	// 	'_onValue',
+	// 	'_offValue',
+	// 	'receive',
+	// 	'set_value',
+	// 	'update_single_control',
+	// 	'update_control',
+	// 	'_apiCallback',
+	// 	'_Callback',
+	// 	'set_control',
+	// 	'add_control',
+	// 	'remove_control',
+	// 	'clear_controls',
+	// 	'set_on_off_values',
+	// 	'_parent',
+	// 	'_control',
+	// 	'_controls'
+	// ]);
 	this._control = undefined;
 	this._controls = [];
 	this._parameter = undefined;
@@ -65,6 +65,7 @@ function ParameterClass(name, args){
 	this._apiProperty = 'value';
 	//this._parent = {tasks:util.nop};
 	ParameterClass.super_.call(this, name, args);
+	// this.autobind(this);
 	this._Callback.owner = this;
 }
 
@@ -91,16 +92,21 @@ ParameterClass.prototype._apiCallback = function(args){
 }
 
 ParameterClass.prototype.receive = function(value){
+	// lcl_debug('receive', value);
 	this._value = value;
-	this.update_control();
 	this.notify();
+	this.update_control();
 }
 
 ParameterClass.prototype.set_value = function(value){
 	this.receive(value);
 }
 
-ParameterClass.prototype.update_single_control = function(control){if(control){control.send(Math.floor(this._value));}}
+ParameterClass.prototype.update_single_control = function(control){
+	if(control){
+		control.send(Math.floor(this._value));
+	}
+}
 
 ParameterClass.prototype.update_control = function(){
 	for(var i in this._controls){
@@ -182,31 +188,17 @@ exports.MomentaryParameter = MomentaryParameter;
 
 function ArrayParameter(name, args){
 	ArrayParameter.super_.call(this, name, args);
+	// this.autobind(this);
 }
 
 util.inherits(ArrayParameter, ParameterClass);
 
 ArrayParameter.prototype.receive = function(value){
-	//lcl_debug('array change', arguments, arrayfromargs(arguments));
-	// lcl_debug('receive:', value);
-	// if(arguments.length>1){
-	// 	this._value = arrayfromargs(arguments);
-	// }
-	// else{
-	// 	this._value = value;
-	// }
-	if(util.isArray(value)){
-		this._value = value;
-	}
-	else if(typeof value == 'string'){
-		this._value = [value];
-	}
-	else{
-		this._value = [];
-	}
-
+	lcl_debug('receive:', value);
+	value = [].concat(value);
 	this.update_control();
 	this.notify();
+	lcl_debug('finished receive');
 }
 
 exports.ArrayParameter = ArrayParameter;
@@ -214,7 +206,7 @@ exports.ArrayParameter = ArrayParameter;
 
 
 function ToggledParameter(name, args){
-	this.add_bound_properties(this, ['update_control', '_onValue', '_offValue']);
+	// this.add_bound_properties(this, ['update_control', '_onValue', '_offValue']);
 	ToggledParameter.super_.call(this, name, args);
 	this._Callback.owner = this;
 }
@@ -269,7 +261,7 @@ function LatchingToggledParameter(name, args){
 		}
 	}
 	this._behaviour_timer = new Task(this._timered, this);
-	this.add_bound_properties(this, ['_behaviour_timer', '_timered', ]);
+	// this.add_bound_properties(this, ['_behaviour_timer', '_timered', ]);
 	this._behaviour = this._behaviour!= undefined ? new this._behaviour(this) : new LatchingToggledParameterBehaviour(this);
 	this._press_delay = this._press_delay ? this._press_delay : PRS_DLY;
 	LatchingToggledParameter.super_.call(this, name, args);
@@ -391,15 +383,15 @@ exports.DelayedRangedParameter = DelayedRangedParameter;
 
 function ParameterGroup(name, parameters, args){
 	var self = this;
-	this.add_bound_properties(this, [
-		'_parameters',
-		'set_controls',
-		'add_controls',
-		'remove_controls',
-		'clear_controls',
-		'_controls',
-		'_controls_groups'
-	]);
+	// this.add_bound_properties(this, [
+	// 	'_parameters',
+	// 	'set_controls',
+	// 	'add_controls',
+	// 	'remove_controls',
+	// 	'clear_controls',
+	// 	'_controls',
+	// 	'_controls_groups'
+	// ]);
 	this._parameters = parameters;
 	this._controls = [];
 	this._controls_groups = [];
@@ -452,35 +444,35 @@ exports.ParameterGroup = ParameterGroup;
 //inc/dec functions need to be separated for more convenient internal calls can be made.
 
 function OffsetComponent(name, minimum, maximum, initial, callback, onValue, offValue, increment, args){
-	this.add_bound_properties(this, [
-		'receive',
-		'set_value',
-		'update_control',
-		'_apiCallback',
-		'_Callback',
-		'set_control',
-		'incCallback',
-		'decCallback',
-		'_incButton',
-		'_decButton',
-		'_incButtons',
-		'_decButtons',
-		'set_inc_dec_buttons',
-		'add_inc_dec_buttons',
-		'remove_inc_dec_buttons',
-		'clear_inc_dec_buttons',
-		'set_inc_button',
-		'set_dec_button',
-		'add_inc_button',
-		'add_dec_button',
-		'remove_inc_button',
-		'remove_dec_button',
-		'clear_inc_button',
-		'clear_dec_button',
-		'_update_buttons',
-		'_update_single_inc_button',
-		'_update_single_dec_button'
-	]);
+	// this.add_bound_properties(this, [
+	// 	'receive',
+	// 	'set_value',
+	// 	'update_control',
+	// 	'_apiCallback',
+	// 	'_Callback',
+	// 	'set_control',
+	// 	'incCallback',
+	// 	'decCallback',
+	// 	'_incButton',
+	// 	'_decButton',
+	// 	'_incButtons',
+	// 	'_decButtons',
+	// 	'set_inc_dec_buttons',
+	// 	'add_inc_dec_buttons',
+	// 	'remove_inc_dec_buttons',
+	// 	'clear_inc_dec_buttons',
+	// 	'set_inc_button',
+	// 	'set_dec_button',
+	// 	'add_inc_button',
+	// 	'add_dec_button',
+	// 	'remove_inc_button',
+	// 	'remove_dec_button',
+	// 	'clear_inc_button',
+	// 	'clear_dec_button',
+	// 	'_update_buttons',
+	// 	'_update_single_inc_button',
+	// 	'_update_single_dec_button'
+	// ]);
 	this._min = minimum!=undefined?minimum:0;
 	this._max = maximum!=undefined?maximum:127;
 	this._increment = increment!=undefined?increment:1;
@@ -730,23 +722,23 @@ exports.OffsetComponent = OffsetComponent;
 //Notifier that uses multiple buttons to change an offset value, displaying the current value
 
 function RadioComponent(name, minimum, maximum, initial, callback, onValue, offValue, args){
-	this.add_bound_properties(this, [
-		'_callback',
-		'_min',
-		'_max',
-		'set_value',
-		'_buttons',
-		'_buttons_groups',
-		'update_controls',
-		'update_controls_group',
-		'_apiCallback',
-		'_Callback',
-		'set_controls',
-		'add_controls',
-		'remove_controls',
-		'clear_controls',
-		'set_enabled'
-	]);
+	// this.add_bound_properties(this, [
+	// 	'_callback',
+	// 	'_min',
+	// 	'_max',
+	// 	'set_value',
+	// 	'_buttons',
+	// 	'_buttons_groups',
+	// 	'update_controls',
+	// 	'update_controls_group',
+	// 	'_apiCallback',
+	// 	'_Callback',
+	// 	'set_controls',
+	// 	'add_controls',
+	// 	'remove_controls',
+	// 	'clear_controls',
+	// 	'set_enabled'
+	// ]);
 	this._min = minimum!=undefined?minimum:0;
 	this._max = maximum!=undefined?maximum:1;
 	this._buttons = [];
@@ -885,20 +877,20 @@ exports.RadioComponent = RadioComponent;
 //Notifier that uses two buttons to change an offset value
 
 function DoubleSliderComponent(name, minimum, maximum, initial_start, initial_end, callback, onValue, offValue, args){
-	this.add_bound_properties(this, [
-		'receive',
-		'set_value',
-		'update_controls',
-		'update_controls_groups',
-		'_Callback',
-		'set_controls',
-		'add_controls',
-		'remove_controls',
-		'clear_controls',
-		'set_value',
-		'set_start_value',
-		'set_end_value'
-	]);
+	// this.add_bound_properties(this, [
+	// 	'receive',
+	// 	'set_value',
+	// 	'update_controls',
+	// 	'update_controls_groups',
+	// 	'_Callback',
+	// 	'set_controls',
+	// 	'add_controls',
+	// 	'remove_controls',
+	// 	'clear_controls',
+	// 	'set_value',
+	// 	'set_start_value',
+	// 	'set_end_value'
+	// ]);
 	this._min = minimum||0;
 	this._max = maximum||16;
 	this._start_value = initial_start||0;
