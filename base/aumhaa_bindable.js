@@ -14,9 +14,13 @@ var lcl_debug = LOCAL_DEBUG && util.Debug ? util.Debug : function(){}
 
 function Bindable(name, args){
 	var self = this;
-	this._instance = self;
+	this.Self_ = function(){
+		return self;
+	}
+
+	// this._instance = self;
 	this._name = name;
-	this.instance = function(){return self;}
+	// this.instance = function(){return self;}
 
 	for(var i in args){
 		this['_'+i] = args[i];
@@ -31,7 +35,7 @@ function Bindable(name, args){
 	// 	'check_dependencies'
 	// ]);
 	//lcl_debug('making bindable:', name, 'args:', args, 'bound_props:', this._bound_properties);
-	this.bind_properties(self);
+	// this.bind_properties(self);  //do NOT use this, it totally destroys ownership
 	this.autobind(self);
 	this.require_dependencies(self, ['_name']);
 	this.check_dependencies();
@@ -40,7 +44,7 @@ function Bindable(name, args){
 // Bindable.prototype._mixin_bound_properties = [];
 
 Bindable.prototype.__defineGetter__('instance', function(){
-	return this._instance;
+	return this.Self_();
 });
 
 Bindable.prototype.check_dependencies = function(){
@@ -81,6 +85,7 @@ Bindable.prototype.bind_properties = function(instance){
 		}
 	}
 }
+
 
 Bindable.prototype.autobind = function(self) {
 	var keys = Object.getOwnPropertyNames(self.constructor.prototype);

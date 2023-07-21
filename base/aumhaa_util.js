@@ -548,7 +548,11 @@ function autobind(self) {
 		var val = self[key];
 		if (key !== 'constructor' &&  val instanceof Object) {
 			// Debug('binding:', key);
-			self[key] = val.bind(self);
+			try {
+				self[key] = val.bind(self);
+			} catch(e) {
+				report_error(e);
+			}
 		}
 	}
 

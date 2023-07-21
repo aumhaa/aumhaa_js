@@ -30,23 +30,23 @@ else{
 
 
 function EventEmitter(name, args){
-	this.add_bound_properties(this, [
-		 '_events',
-		 'on',
-		 'off',
-		 'emit',
-		 'once',
-     'clear_all_events'
-	]);
+	// this.add_bound_properties(this, [
+	// 	 '_events',
+	// 	 'on',
+	// 	 'off',
+	// 	 'emit',
+	// 	 'once',
+  //    'clear_all_events'
+	// ]);
   this._events = {};
 	EventEmitter.super_.call(this, name, args);
-  // this.autobind(this);
 };
 
 util.inherits(EventEmitter, Bindable);
 
 EventEmitter.prototype.on = function(event, listener){
-    var self = this.instance
+    // var self = this.instance;
+    var self = this;
 		self.off(event, listener);
     if(listener == undefined) {
       lcl_debug('listener undefined', event);
@@ -60,7 +60,8 @@ EventEmitter.prototype.on = function(event, listener){
 };
 
 EventEmitter.prototype.off = function(event, listener){
-    var self = this.instance
+    // var self = this.instance;
+    var self = this;
     var idx;
     if ( self._events[event] instanceof Object) {
         idx = indexOf(self._events[event], listener);
@@ -71,19 +72,15 @@ EventEmitter.prototype.off = function(event, listener){
 };
 
 EventEmitter.prototype.clear_all_events = function(){
-  this.instance._events = {};
+  // this.instance._events = {};
+  this._events = {};
 };
 
-// EventEmitter.prototype.clear_all_events = function(){
-
-// };
-
 EventEmitter.prototype.emit = function(event){
-    var self = this.instance;
+    // var self = this.instance;
+    var self = this;
     var i, listeners, length;
     var args = [].slice.call(arguments, 1);
-    // debug('emit:', i, JSON.stringify(listeners), length, args);
-    // debug('event:', event, this._name);
 		try{
       if(event in self._events){
         listeners = self._events[event].slice();
@@ -108,7 +105,8 @@ EventEmitter.prototype.emit = function(event){
 };
 
 EventEmitter.prototype.once = function(event, listener){
-  var self = this.instance;
+  // var self = this.instance;
+  var self = this;
   self.on(event, function g () {
       self.off(event, g);
       listener.apply(self, arguments);
